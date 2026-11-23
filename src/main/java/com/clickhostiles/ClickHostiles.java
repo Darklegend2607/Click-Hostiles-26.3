@@ -22,6 +22,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
@@ -108,7 +109,7 @@ public class ClickHostiles implements ModInitializer {
 
         entity.discard();
         if (!player.getInventory().add(stack)) {
-            player.drop(stack, false);
+            serverLevel.addFreshEntity(new ItemEntity(serverLevel, player.getX(), player.getY(), player.getZ(), stack));
         }
         return InteractionResult.SUCCESS;
     }
@@ -141,10 +142,11 @@ public class ClickHostiles implements ModInitializer {
             e.setDeltaMovement(Vec3.ZERO);
             return e;
         });
-        if (mob == null || !serverLevel.addFreshEntityWithPassengers(mob)) {
+        if (mob == null) {
             overlay(player, "Couldn't place the mob here.");
             return InteractionResult.FAIL;
         }
+        serverLevel.addFreshEntityWithPassengers(mob);
 
         level.gameEvent(player, GameEvent.ENTITY_PLACE, target);
         if (!player.getAbilities().instabuild) stack.shrink(1);
